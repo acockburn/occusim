@@ -23,7 +23,6 @@ class = OccupancySimulator
 
 log = 1
 notify = 1
-select = input_select.house_mode
 enable = input_boolean.vacation,off
 days = mon,tue,wed,thu,fri
 test = 1
@@ -33,7 +32,6 @@ reset_time = 02:00:00
 
 - `log` set this to any value to make `OccuSim` log its scheduled activities
 - `notify` set this to any value to make `OccuSim` send a notification for its scheduled activities
-- `select` (optional) set to the name of an input select that will be set to the name of the current step
 - `enable` (optional) set to the name of an input boolean, and the value it needs to be to enable `OccuSim`. If omitted, `OccuSim` will always be active.
 - `days` (optional) comma separated list of days (no spaces) on which the simulator will be active. If omitted, `OccuSim` will be active every day.
 - `test` (optional) set to any value to have occusim run, but not activate any lights or scenes. Use with `log` to test settings and times.
@@ -82,6 +80,20 @@ To define a random event, use the following parameters:
 - `random_<random_name>_off_<name>` - An entity to turn off at the end of the event period. This can be anything that home assistant can turn off with it's `homeassistant/turn_off` service - a light, a script a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
 
 Random events are not guaranteed to not overlap, however this can add additional randomness to the operation so is not a bad thing.
+
+## input_selects and events
+
+Each step can also fire a home assistant event or modify the value of an input_select to match the name of the step. Both use the on and off step parameters with special values. For instance, to send a `MODE_CHANGE` custom event, with a parameter called `mode` set to the value of the step, use the following:
+
+```ini
+step_<step name>_on_1 = event.MODE_CHANGE,mode
+```
+
+To set an input_select called `house_mode` to the value of the current step use the following:
+
+```ini
+step_<step_name>_on_1 = input_select.house_mode
+```
 
 # Example
 

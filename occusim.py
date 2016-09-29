@@ -195,15 +195,10 @@ class OccuSim(appapi.AppDaemon):
       else:
         self.log("{} in the past - ignoring".format(stepname))
 
-      
-
-      
   def execute_step(self, kwargs):
     #Set the house up for the specific step
     self.step = kwargs["step"]
     self.log_notify("Executing step {}".format(self.step))
-    if "select" in self.args and self.test == False:
-      self.call_service("input_select/select_option", entity_id=self.args["select"], option=self.step)
     for arg in kwargs:
       if re.match(".+on.+", arg):
         self.activate(kwargs[arg], "on")
@@ -212,6 +207,17 @@ class OccuSim(appapi.AppDaemon):
         
   def activate(self, entity, action):
     type = action
+    m = re.match('event\.(.+)\,(.+)', entity)
+    if m:  
+      self.fire_event(m.group(1), **{m.group(2): self.step})
+      if "log" in self.args:
+        self.log("fired event {} with {} = {}".format(m.group(1), m.group(2), self.step))
+      return
+    m = re.match('input_select\.', entity)
+    if m:
+      self.select_option(entity, self.step)
+      self.log("set {} to value {}".format(entity, self.step))
+      return
     if action == "on":
       if not self.test: self.turn_on(entity)
     else:
