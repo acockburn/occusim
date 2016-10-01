@@ -56,6 +56,8 @@ class OccuSim(appapi.AppDaemon):
         stepname = self.args[step + "name"]
         cbargs = {}
         cbargs["step"] = stepname
+        if (step + "days") in self.args:
+          cbargs["days"] = self.args[step + "days"]
         span = 0
         for arg in self.args:
           if re.match(step + "on", arg) or re.match(step + "off", arg):
@@ -95,6 +97,8 @@ class OccuSim(appapi.AppDaemon):
           if stepname not in events:
             cbargs = {}
             cbargs["step"] = stepname
+            if (step + "days") in self.args:
+              cbargs["days"] = self.args[step + "days"]
             span = 0
             for arg in self.args:
               if re.match(step + "on", arg) or re.match(step + "off", arg):
@@ -140,6 +144,10 @@ class OccuSim(appapi.AppDaemon):
       stepname = self.args[step + "name"]
       cbonargs = {}
       cboffargs = {}
+      if (step + "days") in self.args:
+        cbonargs["days"] = self.args[step + "days"]
+        cboffargs["days"] = self.args[step + "days"]
+
       span = 0
       for arg in self.args:
         if re.match(step + "on", arg):
@@ -187,8 +195,8 @@ class OccuSim(appapi.AppDaemon):
         # schedule it
         if "enable" in self.args:
           args["constrain_input_boolean"] = self.args["enable"]
-        if "days" in self.args:
-          args["constrain_days"] = self.args["days"]
+        if "days" in events[event]["args"]:
+          args["constrain_days"] = events[event]["args"]["days"]
         self.run_at(self.execute_step, start, **args)
         if "dump_times" in self.args:
           self.log("{}: @ {}".format(stepname, start))

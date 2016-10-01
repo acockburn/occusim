@@ -1,51 +1,43 @@
-[Occupancy Simulator Weekdays]
-module = occupancy_sim
-class = OccupancySimulator
+[Occupancy Simulator]
+module = occusim
+class = OccuSim
 
 log = 1
 notify = 1
-select = input_select.house_step
-enable = input_boolean.vacation,off
+enable = input_boolean.vacation,on
 days = mon,tue,wed,thu,fri
-test = 1
-dump_times = 1
-reset_time = 02:00:00
+;test = 1
+;dump_times = 1
+;reset_time = 02:00:00
 
 step_morning_name = Morning
 step_morning_start = 05:30:00
 step_morning_end = 06:00:00
-step_morning_on_1 = scene.wendys_lamp
+step_morning_on_1 = event.MODE_CHANGE,mode
 
-step_day_name = Day
-step_day_start = sunrise + 00:45:00
-step_day_on_1 = scene.downstairs_off
+#step_day_name = Day
+#step_day_start = sunrise + 00:45:00
+#step_day_on_1 = event.MODE_CHANGE,mode
 
 step_evening_name = Evening
 step_evening_start = sunset - 00:45:00
-step_evening_on_1 = scene.downstairs_on
-
-step_bedtime_name = Bedtime
-step_bedtime_start = 21:30:00 
-step_bedtime_end = 22:30:00
-step_bedtime_on_1 = scene.upstairs_hall_on
-step_bedtime_on_2 = scene.bedroom_on
-
-step_downstairs_off_name = Downstairs Off
-step_downstairs_off_relative = Bedtime
-step_downstairs_off_start_offset = 00:00:05
-step_downstairs_off_off_1 = scene.downstairs_off
-
-step_upstairs_hall_off_name = Upstairs Hall Off
-step_upstairs_hall_off_relative = Bedtime
-step_upstairs_hall_off_start_offset = 00:01:00
-step_upstairs_hall_off_end_offset = 00:05:00
-step_upstairs_hall_off_off_1 = scene.upstairs_hall_off
 
 step_night_name = Night
-step_night_relative = Bedtime
-step_night_start_offset = 00:05:00
-step_night_end_offset = 01:00:00
-step_night_off_1 = scene.bedroom_off
+step_night_start = 21:30:00 
+step_night_end = 22:30:00
+step_night_on_1 = event.MODE_CHANGE,mode
+
+step_upstairs_hall_off_name = Upstairs Hall Off
+step_upstairs_hall_off_relative = Night
+step_upstairs_hall_off_start_offset = 00:01:00
+step_upstairs_hall_off_end_offset = 00:05:00
+step_upstairs_hall_off_1 = scene.upstairs_hall_off
+
+step_lightsout_name = Lights Out
+step_lightsout_relative = Night
+step_lightsout_start_offset = 00:05:00
+step_lightsout_end_offset = 01:00:00
+step_lightsout_off_1 = scene.bedroom_off
 
 random_office_name = Evening Office
 random_office_start = Evening
@@ -55,3 +47,4 @@ random_office_maxduration = 00:30:00
 random_office_number = 3
 random_office_on_1 = scene.office_on
 random_office_off_1 = scene.office_off
+

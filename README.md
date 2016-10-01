@@ -24,7 +24,6 @@ class = OccupancySimulator
 log = 1
 notify = 1
 enable = input_boolean.vacation,off
-days = mon,tue,wed,thu,fri
 test = 1
 dump_times = 1
 reset_time = 02:00:00
@@ -33,7 +32,6 @@ reset_time = 02:00:00
 - `log` set this to any value to make `OccuSim` log its scheduled activities
 - `notify` set this to any value to make `OccuSim` send a notification for its scheduled activities
 - `enable` (optional) set to the name of an input boolean, and the value it needs to be to enable `OccuSim`. If omitted, `OccuSim` will always be active.
-- `days` (optional) comma separated list of days (no spaces) on which the simulator will be active. If omitted, `OccuSim` will be active every day.
 - `test` (optional) set to any value to have occusim run, but not activate any lights or scenes. Use with `log` to test settings and times.
 - `dump_times` (optional) set to any value to dump a list of the times events will happen when the app is first initialized and every night at the reset time.
 - `reset_time` (optional) time at which `OccuSim` re-calculates the new set of random times for the day ahead. Defaults to 3am.
@@ -52,6 +50,7 @@ The parameters for a given step all start with `step_<step name>_` and are group
 
 - `step_<step_name>_name` - A printable name for the Step e.g. `Morning` or `Bedtime`
 - `step_<step_name>_start` - start time for this step. If no end time is specified, this will be an absolute time and takes the form `hh:mm:ss`. Alternatively, this can be an offset from sunrise or sunset, for example `sunset - 00:45:00` 
+- `step_<step_name>_days` (optional) comma separated list of days (no spaces) on which the step will be active. If omitted, the step will be active every day.
 - `step_<step_name>_end` (optional) - end time for random selection. If this is specified for a step, the time a step fires will be randomized between the start and end times. It takes the same parameter format as `start`
 - `step_<step_name>_on_<name>` (optional) - An entity to turn on when the step fires. This can be anything that home assistant can turn on with it's `homeassistant/turn_on` service - a light, a script a scene. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
 - `step_<step_name>_off_<name>` (optional) - An entity to turn off when the step fires. This can be anything that home assistant can turn off with it's `homeassistant/turn_off` service - a light, a script a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers. 
@@ -97,7 +96,7 @@ step_<step_name>_on_1 = input_select.house_mode
 
 # Example
 
-The above paramneters are somewhat complex in isolation, so lets build up a worked example to see how they work together.
+The above parameters are somewhat complex in isolation, so lets build up a worked example to see how they work together.
 
 ## Morning
 
