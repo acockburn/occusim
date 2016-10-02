@@ -214,6 +214,16 @@ step_evening_start = 11:00:00
 
 This will allow the office randomisations to occur any time between 45 minutes before sunset and 11pm.
 
+# Updating OccuSim
+
+To update OccuSim after I have released new code, just run the following command to update your copy:
+
+```bash
+$ git pull origin
+```
+
+Then copy occusim.py to your App directory as in the original installation.
+
 # Known Limitations
 
 - It is currently not possible to schedule actions, or allow them to be randomly calculated for the next day. In other words, you had better be in bed and lights out by 12am!
