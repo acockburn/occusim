@@ -6,9 +6,8 @@ import random
 #
 # App to simulate occupancy in an empty house
 #
-# 
-# Version 1.0:
-#   Initial Version
+
+__version__ = "1.1.1"
 
 class OccuSim(appapi.AppDaemon):
 
@@ -217,13 +216,13 @@ class OccuSim(appapi.AppDaemon):
     type = action
     m = re.match('event\.(.+)\,(.+)', entity)
     if m:  
-      self.fire_event(m.group(1), **{m.group(2): self.step})
+      if not self.test: self.fire_event(m.group(1), **{m.group(2): self.step})
       if "log" in self.args:
         self.log("fired event {} with {} = {}".format(m.group(1), m.group(2), self.step))
       return
     m = re.match('input_select\.', entity)
     if m:
-      self.select_option(entity, self.step)
+      if not self.test: self.select_option(entity, self.step)
       self.log("set {} to value {}".format(entity, self.step))
       return
     if action == "on":

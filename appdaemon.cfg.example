@@ -3,24 +3,25 @@ module = occusim
 class = OccuSim
 
 log = 1
-notify = 1
-enable = input_boolean.vacation,on
-days = mon,tue,wed,thu,fri
-;test = 1
-;dump_times = 1
+;notify = 1
+enable = input_boolean.vacation,off
+test = 1
+dump_times = 1
 ;reset_time = 02:00:00
 
 step_morning_name = Morning
+step_morning_days = mon,tue,wed,thu,fri
 step_morning_start = 05:30:00
 step_morning_end = 06:00:00
 step_morning_on_1 = event.MODE_CHANGE,mode
 
-#step_day_name = Day
-#step_day_start = sunrise + 00:45:00
-#step_day_on_1 = event.MODE_CHANGE,mode
+step_day_name = Day
+step_day_start = sunrise + 00:45:00
+step_day_on_1 = event.MODE_CHANGE,mode
 
 step_evening_name = Evening
 step_evening_start = sunset - 00:45:00
+step_evening_on_1 = event.MODE_CHANGE,mode
 
 step_night_name = Night
 step_night_start = 21:30:00 

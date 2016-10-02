@@ -2,6 +2,21 @@
 History
 =======
 
+1.1.1 (2016-10-02)
+------------------
+
+**Features**
+
+None
+
+**Fixes**
+
+- Fixed a bug where custome events were not honoring test mode
+
+**Breaking Changes**
+
+None
+
 1.1.0 (2016-10-01)
 ------------------
 
