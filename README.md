@@ -17,9 +17,9 @@ Next copy the occusim.py app to your Apps directory (see [AppDaemon docs](https:
 OccuSim is configured in the standard way with a named stanza in the cfg file for the app - or more than one if you prefer. There are a number of initial parameters that control the behavior, then parameters to define the various activities and times. The initial parameters are as follows:
 
 ```
-[Occupancy Simulator Weekdays]
-module = occupancy_sim
-class = OccupancySimulator
+[Occupancy Simulator]
+module = occusim
+class = OccuSim
 
 log = 1
 notify = 1
