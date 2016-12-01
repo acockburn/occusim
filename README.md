@@ -59,13 +59,13 @@ If you require a step to be relative to another step, instead of using the `star
 
 - `step_<step_name>_relative` - Name of a defined step that is the start of the range of randomness (the step itself can be random, see above)
 - `step_<step_name>_start_offset` - Duration after the step that is the start of the random range for this step, e.g. `00:01:00` - 1 minute.
-- `step_<step_name>_end_offset` (optional) - Duration after the step that is the end of the random range for this step, e.g. `01:00:00` - 1 hour. If ommited, the step will fire at the exact offset specified in the start_offset.
+- `step_<step_name>_end_offset` (optional) - Duration after the step that is the end of the random range for this step, e.g. `01:00:00` - 1 hour. If omitted, the step will fire at the exact offset specified in the start_offset.
 
 ## Random Operation
 
 By Contrast, Random Operation attempts to turn various lights on and off at random times, and do that a set number of times. This pattern may work better for less structured households.
 
-To set up a random event, it is first necessary to define 2 steps to act as the start and end times for the random activity. The steps themselves need not do turn anything on or off, they are there as markers. As with the steps decribed above, the parameters have a pattern of `random_<random_name>` to group the parameters together.
+To set up a random event, it is first necessary to define 2 steps to act as the start and end times for the random activity. The steps themselves need not do turn anything on or off, they are there as markers. As with the steps described above, the parameters have a pattern of `random_<random_name>` to group the parameters together.
 
 To define a random event, use the following parameters:
 
@@ -156,7 +156,7 @@ step_bedtime_on_1 = scene.upstairs_hall_on
 step_bedtime_on_2 = scene.bedroom_on
 ```
 
-Now, lets wait 5 seconds and turn downstairs off. I want this to be exactly 5 seconds to emulate the behavior of my existing automartions. We do this using a relative step, since bedtime is random and we don't know when exactly it happened. With a relative step, the step will be fired after the step it is relative to, whenever that actually happens.
+Now, lets wait 5 seconds and turn downstairs off. I want this to be exactly 5 seconds to emulate the behavior of my existing automations. We do this using a relative step, since bedtime is random and we don't know when exactly it happened. With a relative step, the step will be fired after the step it is relative to, whenever that actually happens.
 
 ```ini
 step_downstairs_off_name = Downstairs Off
