@@ -123,7 +123,7 @@ In this case I opted to use an exact time (at least relative to sunset) however,
 
 
 ```ini
-step_day_start = sunrise + 01:00:00
+step_day_end = sunrise + 01:00:00
 ```
 
 With that in place the lights would go off at a random time between 45 minutes and an hour after sunrise.
