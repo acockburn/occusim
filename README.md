@@ -52,8 +52,8 @@ The parameters for a given step all start with `step_<step name>_` and are group
 - `step_<step_name>_start` - start time for this step. If no end time is specified, this will be an absolute time and takes the form `hh:mm:ss`. Alternatively, this can be an offset from sunrise or sunset, for example `sunset - 00:45:00` 
 - `step_<step_name>_days` (optional) comma separated list of days (no spaces) on which the step will be active. If omitted, the step will be active every day.
 - `step_<step_name>_end` (optional) - end time for random selection. If this is specified for a step, the time a step fires will be randomized between the start and end times. It takes the same parameter format as `start`
-- `step_<step_name>_on_<name>` (optional) - An entity to turn on when the step fires. This can be anything that home assistant can turn on with it's `homeassistant/turn_on` service - a light, a script a scene. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
-- `step_<step_name>_off_<name>` (optional) - An entity to turn off when the step fires. This can be anything that home assistant can turn off with it's `homeassistant/turn_off` service - a light, a script a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers. 
+- `step_<step_name>_on_<name>` (optional) - An entity to turn on when the step fires. This can be anything that home assistant can turn on with its `homeassistant/turn_on` service - a light, a script or a scene. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
+- `step_<step_name>_off_<name>` (optional) - An entity to turn off when the step fires. This can be anything that home assistant can turn off with its `homeassistant/turn_off` service - a light, a script or a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers. 
 
 If you require a step to be relative to another step, instead of using the `start` and `end` parameters, use the following 3 parameters:
 
@@ -75,8 +75,8 @@ To define a random event, use the following parameters:
 - `random_<random_name>_minduration` - Minimum duration of the event
 - `random_<random_name>_maxduration` - Maximum duration of the event
 - `random_<random_name>_number` - Number of times within the period to fire the event
-- `random_<random_name>_on_<name>` - An entity to turn on at the start of the event period. This can be anything that home assistant can turn on with it's `homeassistant/turn_on` service - a light, a script a scene. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
-- `random_<random_name>_off_<name>` - An entity to turn off at the end of the event period. This can be anything that home assistant can turn off with it's `homeassistant/turn_off` service - a light, a script a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
+- `random_<random_name>_on_<name>` - An entity to turn on at the start of the event period. This can be anything that home assistant can turn on with its `homeassistant/turn_on` service - a light, a script or a scene. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
+- `random_<random_name>_off_<name>` - An entity to turn off at the end of the event period. This can be anything that home assistant can turn off with its `homeassistant/turn_off` service - a light, a script or a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
 
 Random events are not guaranteed to not overlap, however this can add additional randomness to the operation so is not a bad thing.
 
@@ -96,7 +96,7 @@ step_<step_name>_on_1 = input_select.house_mode
 
 # Example
 
-The above parameters are somewhat complex in isolation, so lets build up a worked example to see how they work together.
+The above parameters are somewhat complex in isolation, so let's build up a worked example to see how they work together.
 
 ## Morning
 
@@ -146,7 +146,7 @@ Generally we stay with this set of lights until we go to bed when several things
 - Turns on our bedside lights
 - Waits 5 seconds and turns off the downstairs lights
 
-We can do that with a couple of steps. First, lets turn on the hall light and our bedside lights. We will do this at a random time to simulate our varying times of going to bed.
+We can do that with a couple of steps. First, let's turn on the hall light and our bedside lights. We will do this at a random time to simulate our varying times of going to bed.
 
 ```ini
 step_bedtime_name = Bedtime
@@ -156,7 +156,7 @@ step_bedtime_on_1 = scene.upstairs_hall_on
 step_bedtime_on_2 = scene.bedroom_on
 ```
 
-Now, lets wait 5 seconds and turn downstairs off. I want this to be exactly 5 seconds to emulate the behavior of my existing automations. We do this using a relative step, since bedtime is random and we don't know when exactly it happened. With a relative step, the step will be fired after the step it is relative to, whenever that actually happens.
+Now, let's wait 5 seconds and turn downstairs off. I want this to be exactly 5 seconds to emulate the behavior of my existing automations. We do this using a relative step, since bedtime is random and we don't know when exactly it happened. With a relative step, the step will be fired after the step it is relative to, whenever that actually happens.
 
 ```ini
 step_downstairs_off_name = Downstairs Off
@@ -187,7 +187,7 @@ step_night_off_1 = scene.bedroom_off
 
 ## Evening Office
 
-So far, the above has been fairly structured, but it would be nice to add some other randomness to the setup. Sometimes I spend some of the evening in my office, so lets turn some lights on and off at random:
+So far, the above has been fairly structured, but it would be nice to add some other randomness to the setup. Sometimes I spend some of the evening in my office, so let's turn some lights on and off at random:
 
 ```ini
 random_office_name = Evening Office
