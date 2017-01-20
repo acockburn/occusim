@@ -7,15 +7,13 @@ import random
 # App to simulate occupancy in an empty house
 #
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 class OccuSim(appapi.AppDaemon):
 
   def initialize(self):
   
-    # Schedule a daily callback that will call run_daily() at 3am every night
-    # To set the new callbacks
-    if "test" in self.args:
+    if "test" in self.args and self.args["test"] == "1":
       self.test = True
     else:
       self.test = False

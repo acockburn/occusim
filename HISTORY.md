@@ -2,6 +2,23 @@
 History
 =======
 
+1.1.2 (2016-10-02)
+------------------
+
+**Features**
+
+None
+
+**Fixes**
+
+- Changes test mode to only activate when test is set to "1". Setting it to any other value, e.g. "0" or omiting it will disable test mode.
+
+**Breaking Changes**
+
+- Test mode will no longer be enabled for values of the parameter test other than "1"
+
+None
+
 1.1.1 (2016-10-02)
 ------------------
 
