@@ -2,6 +2,21 @@
 History
 =======
 
+1.1.3 (2017-04-14
+-----------------
+
+** Features **
+
+None
+
+** Fixes **
+
+- Improved regex for on/off arguments contributed by [Dadeniss](https://github.com/Dadeniss)
+
+** Breaking Changes **
+
+None
+
 1.1.2 (2016-10-02)
 ------------------
 
