@@ -205,9 +205,9 @@ class OccuSim(appapi.AppDaemon):
     self.step = kwargs["step"]
     self.log_notify("Executing step {}".format(self.step))
     for arg in kwargs:
-      if re.match(".+on.+", arg):
+      if re.match(".+_on_.+", arg):
         self.activate(kwargs[arg], "on")
-      elif re.match(".+off.+", arg):
+      elif re.match(".+_off_.+", arg):
         self.activate(kwargs[arg], "off")
         
   def activate(self, entity, action):
