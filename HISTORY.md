@@ -1,19 +1,18 @@
-=======
 History
 =======
 
 1.1.3 (2017-04-14
 -----------------
 
-** Features **
+**Features**
 
 None
 
-** Fixes **
+**Fixes**
 
 - Improved regex for on/off arguments contributed by [Dadeniss](https://github.com/Dadeniss)
 
-** Breaking Changes **
+**Breaking Changes**
 
 None
 
