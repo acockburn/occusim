@@ -14,19 +14,18 @@ Next copy the occusim.py app to your Apps directory (see [AppDaemon docs](https:
 
 # Configuration
 
-OccuSim is configured in the standard way with a named stanza in the cfg file for the app - or more than one if you prefer. There are a number of initial parameters that control the behavior, then parameters to define the various activities and times. The initial parameters are as follows:
+OccuSim is configured in the standard way with a named stanza in the appdaemin.yaml file for the app - or more than one if you prefer. There are a number of initial parameters that control the behavior, then parameters to define the various activities and times. The initial parameters are as follows:
 
 ```
-[Occupancy Simulator]
-module = occusim
-class = OccuSim
-
-log = 1
-notify = 1
-enable = input_boolean.vacation,off
-test = 1
-dump_times = 1
-reset_time = 02:00:00
+Occupancy Simulator:
+  class: OccuSim
+  module: occusim
+  log: '1'
+  notify: '1'
+  enable: input_boolean.vacation,on
+  test: '1'
+  dump_times: '1'
+  reset_time: 02:00:00
 ```
 
 - `log` set this to any value to make `OccuSim` log its scheduled activities
@@ -84,14 +83,14 @@ Random events are not guaranteed to not overlap, however this can add additional
 
 Each step can also fire a home assistant event or modify the value of an input_select to match the name of the step. Both use the on and off step parameters with special values. For instance, to send a `MODE_CHANGE` custom event, with a parameter called `mode` set to the value of the step, use the following:
 
-```ini
-step_<step name>_on_1 = event.MODE_CHANGE,mode
+```yaml
+step_<step name>_on_1: event.MODE_CHANGE,mode
 ```
 
 To set an input_select called `house_mode` to the value of the current step use the following:
 
-```ini
-step_<step_name>_on_1 = input_select.house_mode
+```yaml
+step_<step_name>_on_1: input_select.house_mode
 ```
 
 # Example
@@ -102,28 +101,28 @@ The above parameters are somewhat complex in isolation, so let's build up a work
 
 Every morning my wife gets up before me and when she gets downstairs a motion detector normally turns a light on for her - she normally gets downstairs sometime between 5:30am and 6am. To simulate that we would use:
 
-```ini
-step_morning_name = Morning
-step_morning_start = 05:30:00
-step_morning_end = 06:00:00
-step_morning_on_1 = scene.wendys_lamp
+```yaml
+step_morning_name: Morning
+step_morning_start: 05:30:00
+step_morning_end: 06:00:00
+step_morning_on_1: scene.wendys_lamp
 ```
 
 ## Day
 
 When the sun rises, I have a luminance sensor turn the lights off when it gets to a certain level. I could leave that enabled but if I wanted to simulate it I could use sunrise as a way to do so - 45 minutes after sunrise is usually about right:
 
-```ini
-step_day_name = Day
-step_day_start = sunrise + 00:45:00
-step_day_on_1 = scene.downstairs_off
+```yaml
+step_day_name: Day
+step_day_start: sunrise + 00:45:00
+step_day_on_1: scene.downstairs_off
 ```
 
 In this case I opted to use an exact time (at least relative to sunset) however, I could have added in an end parameter to make it a bit more random, perhaps like this:
 
 
-```ini
-step_day_end = sunrise + 01:00:00
+```yaml
+step_day_end: sunrise + 01:00:00
 ```
 
 With that in place the lights would go off at a random time between 45 minutes and an hour after sunrise.
@@ -132,10 +131,10 @@ With that in place the lights would go off at a random time between 45 minutes a
 
 In the evening, when the light gets below a certain level I turn on the downstairs lights. I can simulate this again using sunset:
 
-```ini
-step_evening_name = Evening
-step_evening_start = sunset - 00:45:00
-step_evening_on_1 = scene.downstairs_on
+```yaml
+step_evening_name: Evening
+step_evening_start: sunset - 00:45:00
+step_evening_on_1: scene.downstairs_on
 ```
 
 ## Bedtime
@@ -148,68 +147,68 @@ Generally we stay with this set of lights until we go to bed when several things
 
 We can do that with a couple of steps. First, let's turn on the hall light and our bedside lights. We will do this at a random time to simulate our varying times of going to bed.
 
-```ini
-step_bedtime_name = Bedtime
-step_bedtime_start = 21:30:00 
-step_bedtime_end = 22:30:00
-step_bedtime_on_1 = scene.upstairs_hall_on
-step_bedtime_on_2 = scene.bedroom_on
+```yaml
+step_bedtime_name: Bedtime
+step_bedtime_start: 21:30:00 
+step_bedtime_end: 22:30:00
+step_bedtime_on_1: scene.upstairs_hall_on
+step_bedtime_on_2: scene.bedroom_on
 ```
 
 Now, let's wait 5 seconds and turn downstairs off. I want this to be exactly 5 seconds to emulate the behavior of my existing automations. We do this using a relative step, since bedtime is random and we don't know when exactly it happened. With a relative step, the step will be fired after the step it is relative to, whenever that actually happens.
 
-```ini
-step_downstairs_off_name = Downstairs Off
-step_downstairs_off_relative = Bedtime
-step_downstairs_off_start_offset = 00:00:05
-step_downstairs_off_off_1 = scene.downstairs_off
+```yaml
+step_downstairs_off_name: Downstairs Off
+step_downstairs_off_relative: Bedtime
+step_downstairs_off_start_offset: 00:00:05
+step_downstairs_off_off_1: scene.downstairs_off
 ```
 
 Normally we will spend a few minutes getting ready for bed, then turn the upstairs hall light off. Lets randomise that a little, but keep it relative to bedtime:
 
-```ini
-step_upstairs_hall_off_name = Upstairs Hall Off
-step_upstairs_hall_off_relative = Bedtime
-step_upstairs_hall_off_start_offset = 00:01:00
-step_upstairs_hall_off_end_offset = 00:05:00
-step_upstairs_hall_off_off_1 = scene.upstairs_hall_off
+```yaml
+step_upstairs_hall_off_name: Upstairs Hall Off
+step_upstairs_hall_off_relative: Bedtime
+step_upstairs_hall_off_start_offset: 00:01:00
+step_upstairs_hall_off_end_offset: 00:05:00
+step_upstairs_hall_off_off_1: scene.upstairs_hall_off
 ```
 
 Then we may read for a while before turning the bedroom lights out for the night:
 
-```ini
-step_night_name = Night
-step_night_relative = Bedtime
-step_night_start_offset = 00:05:00
-step_night_end_offset = 01:00:00
-step_night_off_1 = scene.bedroom_off
+```yaml
+step_night_name: Night
+step_night_relative: Bedtime
+step_night_start_offset: 00:05:00
+step_night_end_offset: 01:00:00
+step_night_off_1: scene.bedroom_off
 ```
 
 ## Evening Office
 
 So far, the above has been fairly structured, but it would be nice to add some other randomness to the setup. Sometimes I spend some of the evening in my office, so let's turn some lights on and off at random:
 
-```ini
-random_office_name = Evening Office
-random_office_start = Evening
-random_office_end = Night
-random_office_minduration = 00:03:00
-random_office_maxduration = 00:30:00
-random_office_number = 3
-random_office_on_1 = scene.office_on
-random_office_off_1 = scene.office_off
+```yaml
+random_office_name: Evening Office
+random_office_start: Evening
+random_office_end: Night
+random_office_minduration: 00:03:00
+random_office_maxduration: 00:30:00
+random_office_number: 3
+random_office_on_1: scene.office_on
+random_office_off_1: scene.office_off
 ```
 
 Here we are using the previous Evening and Night steps as the start and end of the randomness - essentially, after it gets dark but before we finally retire for the night. Each time the light comes on it will stay on for between 3 and 30 minutes, and it will come on 3 times during the evening.
 
 If I had wanted to run the office on its own without the more structured aspects presented above, I would still need to define steps for Evening and Night as the Evening Office event relies on them. They do not need to do anything special however, just define a time. You could do something like the following:
 
-```ini
-step_evening_name = Evening
-step_evening_start = sunset - 00:45:00
+```yaml
+step_evening_name: Evening
+step_evening_start: sunset - 00:45:00
 
-step_night_name = Night
-step_evening_start = 11:00:00
+step_night_name: Night
+step_evening_start: 11:00:00
 ```
 
 This will allow the office randomisations to occur any time between 45 minutes before sunset and 11pm.
