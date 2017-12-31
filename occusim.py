@@ -7,7 +7,7 @@ import random
 # App to simulate occupancy in an empty house
 #
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 
 class OccuSim(appapi.AppDaemon):
@@ -175,7 +175,7 @@ class OccuSim(appapi.AppDaemon):
 
             for i in range(int(self.args[step + "number"])):
                 start = starttime + datetime.timedelta(seconds=random.randrange(tspan))
-                end = start + datetime.timedelta(seconds=random.randrange(dspan + mindtsdur))
+                end = start + datetime.timedelta(seconds=random.randrange(dspan)) + datetime.timedelta(seconds=mindtsdur)
                 if end > endtime:
                     end = endtime
 
