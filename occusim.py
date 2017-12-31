@@ -7,7 +7,7 @@ import random
 # App to simulate occupancy in an empty house
 #
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 
 
 class OccuSim(appapi.AppDaemon):
