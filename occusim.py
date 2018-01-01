@@ -7,7 +7,7 @@ import random
 # App to simulate occupancy in an empty house
 #
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 
 class OccuSim(appapi.AppDaemon):
@@ -201,6 +201,8 @@ class OccuSim(appapi.AppDaemon):
                 # schedule it
                 if "enable" in self.args:
                     args["constrain_input_boolean"] = self.args["enable"]
+                if "select" in self.args:
+                    args["constrain_input_select"] = self.args["select"]
                 if "days" in events[event]["args"]:
                     args["constrain_days"] = events[event]["args"]["days"]
                 self.run_at(self.execute_step, start, **args)
