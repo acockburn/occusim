@@ -2,6 +2,7 @@ import appdaemon.plugins.hass.hassapi as hass
 import datetime
 import re
 import random
+import pytz
 
 #
 # App to simulate occupancy in an empty house
@@ -19,6 +20,16 @@ class OccuSim(hass.Hass):
         else:
             self.test = False
 
+        if "local_tz" in self.args:
+            self.local_tz = pytz.timezone(self.args["local_tz"])
+        else:
+            self.local_tz = None
+        
+        if "system_tz" in self.args:
+            self.system_tz = pytz.timezone(self.args["system_tz"])
+        else:
+            self.system_tz = pytz.timezone("UTC")
+
         self.timers = ()
 
         # Set a timer to recreate the day's events at 3am
@@ -28,7 +39,7 @@ class OccuSim(hass.Hass):
             time = datetime.time(3, 0, 0)
         self.run_daily(self.create_events, time)
 
-        # Create today's random events
+        # Create today's random eventspytz
         self.create_events({})
 
     def create_events(self, kwargs):
@@ -60,23 +71,27 @@ class OccuSim(hass.Hass):
                 for arg in self.args:
                     if re.match(step + "on", arg) or re.match(step + "off", arg):
                         cbargs[arg] = self.args[arg]
-
+                
                 start_p = self.args[step + "start"]
                 start = self.parse_time(start_p)
                 end_p = self.args.get(step + "end")
+
+                mask = start_p
                 if end_p != None:
                     end = self.parse_time(end_p)
-                    start_ts = datetime.datetime.combine(self.date(), start).timestamp()
-                    end_ts = datetime.datetime.combine(self.date(), end).timestamp()
+                    start_ts = datetime.datetime.combine(self.local_date(), start).timestamp()
+                    end_ts = datetime.datetime.combine(self.local_date(), end).timestamp()
                     span = int(end_ts - start_ts)
-                if span > 0:
-                    event = datetime.datetime.combine(self.date(), start) + datetime.timedelta(
+                    mask += end_p
+                if span == 0:
+                    event = datetime.datetime.combine(self.local_date(), start)
+                else:
+                    #if span < 0:
+                        #span = self.after_midnight(span, step)
+                    event = datetime.datetime.combine(self.local_date(), start) + datetime.timedelta(
                         seconds=random.randrange(span))
-                elif span == 0:
-                    event = datetime.datetime.combine(self.date(), start)
-                elif span < 0:
-                    self.log("step_{} end < start - ignoring end".format(i))
-                    event = datetime.datetime.combine(self.date(), start)
+                if not (re.match(r'[^\d:]', mask)): # If label or text present, already in UTC
+                    event = self.to_system_tz(event) # Else, convert time to UTC
 
                 events[stepname] = {}
                 events[stepname]["event"] = event
@@ -117,13 +132,12 @@ class OccuSim(hass.Hass):
                                                                                          minutes=end_offset.minute,
                                                                                          seconds=end_offset.second)
                                 span = int(end.timestamp() - start.timestamp())
-                            if span > 0:
+                            if span == 0:
+                                event = start
+                            else:
+                                if span < 0:
+                                    self.after_midnight(span, step)
                                 event = start + datetime.timedelta(seconds=random.randrange(span))
-                            elif span == 0:
-                                event = start
-                            elif span < 0:
-                                self.log("step_{} end < start - ignoring end".format(i))
-                                event = start
 
                             events[stepname] = {}
                             events[stepname]["event"] = event
@@ -163,31 +177,62 @@ class OccuSim(hass.Hass):
             starttime = events[startstep]["event"]
             endtime = events[endstep]["event"]
             tspan = int(endtime.timestamp() - starttime.timestamp())
+            if tspan < 0:
+                tspan = self.after_midnight(tspan, step)
 
             mind_p = self.args[step + "minduration"]
             mind = self.parse_time(mind_p)
-            mindts = datetime.datetime.combine(self.date(), mind).timestamp()
-            mindtsdur = mindts - datetime.datetime.combine(self.date(), mind).replace(hour=0, minute=0, second=0).timestamp()
+            mindts = datetime.datetime.combine(self.local_date(), mind).timestamp()
             maxd_p = self.args[step + "maxduration"]
             maxd = self.parse_time(maxd_p)
-            maxdts = datetime.datetime.combine(self.date(), maxd).timestamp()
+            maxdts = datetime.datetime.combine(self.local_date(), maxd).timestamp()
             dspan = int(maxdts - mindts)
+            minds = (mind.hour * 60 + mind.minute) * 60 + mind.second
+            maxds = (maxd.hour * 60 + maxd.minute) * 60 + maxd.second
+            numevents = int(self.args[step + "number"])
+            
+            times_on = [random.randint(minds, maxds) for i in range(numevents)]
+            times_on_sum = sum(times_on)
+            
+            while times_on_sum > tspan:
+                times_on[times_on.index(max(times_on))] = minds
+                times_on_sum = sum(times_on)
+        
+            spaceleft = tspan - times_on_sum
+            spaces = [dspan * random.random() + 1 for i in range(numevents + 1)]
+            spaces = [int(s * spaceleft / sum(spaces)) for s in spaces]
+            
+            if sum(spaces) != spaceleft:
+                diff = sum(spaces) - spaceleft
+                if sum(spaces) > spaceleft:
+                    spaces[spaces.index(max(spaces))] -= diff
+                else:
+                    spaces[spaces.index(min(spaces))] -= diff
+                    
+            turn_on = []
+            turn_off = []
+            times_on = [datetime.timedelta(seconds = s) for s in times_on]
+            spaces = [datetime.timedelta(seconds = s) for s in spaces]
+            
+            if not re.match(r'[^\d:]', startstep): # If label or text present, already in UTC
+                starttime = self.to_system_tz(starttime) # Else, convert time to UTC
+            turn_on.insert(0, starttime + spaces[0])
+            turn_off.insert(0, turn_on[0] + times_on[0])
+            
+            for i in range(1, numevents):
+                turn_on.insert(i, turn_off[i - 1] + spaces[i])
+                turn_off.insert(i, turn_on[i] + times_on[i])
 
-            for i in range(int(self.args[step + "number"])):
-                start = starttime + datetime.timedelta(seconds=random.randrange(tspan))
-                end = start + datetime.timedelta(seconds=random.randrange(dspan)) + datetime.timedelta(seconds=mindtsdur)
-                if end > endtime:
-                    end = endtime
-
+            for i in range(numevents):
                 eventname = stepname + "_on_" + str(i)
                 events[eventname] = {}
-                events[eventname]["event"] = start
+                events[eventname]["event"] = turn_on[i]
                 cbonargs["step"] = eventname
                 events[eventname]["args"] = cbonargs.copy()
 
                 eventname = stepname + "_off_" + str(i)
                 events[eventname] = {}
-                events[eventname]["event"] = end
+                events[eventname]["event"] = turn_off[i]
                 cboffargs["step"] = eventname
                 events[eventname]["args"] = cboffargs.copy()
 
@@ -207,9 +252,9 @@ class OccuSim(hass.Hass):
                     args["constrain_days"] = events[event]["args"]["days"]
                 self.run_at(self.execute_step, start, **args)
                 if "dump_times" in self.args:
-                    self.log("{}: @ {}".format(stepname, start))
+                    self.log("{}: @ {}".format(stepname, self.to_local_tz(start)))
             else:
-                self.log("{} in the past - ignoring".format(stepname))
+                self.log("{} in the past - {} ignoring".format(stepname, self.to_local_tz(start)))
 
     def execute_step(self, kwargs):
         # Set the house up for the specific step
@@ -223,13 +268,13 @@ class OccuSim(hass.Hass):
 
     def activate(self, entity, action):
         type = action
-        m = re.match('event\.(.+)\,(.+)', entity)
+        m = re.match(r'event\.(.+)\,(.+)', entity)
         if m:
             if not self.test: self.fire_event(m.group(1), **{m.group(2): self.step})
             if "log" in self.args:
                 self.log("fired event {} with {} = {}".format(m.group(1), m.group(2), self.step))
             return
-        m = re.match('input_select\.', entity)
+        m = re.match(r'input_select\.', entity)
         if m:
             if not self.test: self.select_option(entity, self.step)
             self.log("set {} to value {}".format(entity, self.step))
@@ -237,7 +282,7 @@ class OccuSim(hass.Hass):
         if action == "on":
             if not self.test: self.turn_on(entity)
         else:
-            if re.match("scene\.", entity) or re.match("script\.", entity):
+            if re.match(r'scene\.', entity) or re.match(r'script\.', entity):
                 type = "on"
                 if not self.test: self.turn_on(entity)
             else:
@@ -251,5 +296,30 @@ class OccuSim(hass.Hass):
             self.log(message)
         if "notify" in self.args:
             self.notify(message)
+    
+    def after_midnight(self, time, step):
+        time += 86400
+        self.log("{}end < {}start - assuming end is midnight or later".format(step, step))
+        return time
 
+    def to_system_tz(self, dt):
+        if self.local_tz != None:
+            localtime = self.local_tz.localize(dt)
+            return localtime.astimezone(self.system_tz).replace(tzinfo = None)
+        else:
+            return dt
+            
+    def to_local_tz(self, dt):
+        if self.local_tz != None:
+            systemtime = self.system_tz.localize(dt)
+            return systemtime.astimezone(self.local_tz).replace(tzinfo = None)
+        else:
+            return dt
 
+    def local_date(self):
+        system_date = self.date()
+        if self.local_tz != None:
+            system_datetime = datetime.datetime.combine(system_date, self.time())
+            return self.to_local_tz(system_datetime).date()
+        else:
+            return system_date
