@@ -26,6 +26,8 @@ Occupancy Simulator:
   test: '1'
   dump_times: '1'
   reset_time: 02:00:00
+  #local_tz: America/New_York
+  #system_tz: UTC
 ```
 
 - `log` set this to any value to make `OccuSim` log its scheduled activities
@@ -35,6 +37,8 @@ Occupancy Simulator:
 - `test` (optional) set to "1" to have occusim run, but not activate any lights or scenes. Use with `log` to test settings and times. If set to anything else, or not present, test mode will not be enabled.
 - `dump_times` (optional) set to any value to dump a list of the times events will happen when the app is first initialized and every night at the reset time.
 - `reset_time` (optional) time at which `OccuSim` re-calculates the new set of random times for the day ahead. Defaults to 3am.
+- `local_tz` (optional) set to local timezone in pytz format.  Only use if running Hassio.
+- `system_tz` (optional) set to machine's internal timezone.  Defaults to UTC.  Only use if running Hassio.
 
 # Operation
 
@@ -78,7 +82,8 @@ To define a random event, use the following parameters:
 - `random_<random_name>_on_<name>` - An entity to turn on at the start of the event period. This can be anything that home assistant can turn on with its `homeassistant/turn_on` service - a light, a script or a scene. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
 - `random_<random_name>_off_<name>` - An entity to turn off at the end of the event period. This can be anything that home assistant can turn off with its `homeassistant/turn_off` service - a light, a script or a scene. If a scene is used here, `OccuSim` is smart enough to turn it on rather than off. It is possible to have multiples of this parameter, however <name> must be unique for each one - it is easiest just to use numbers.
 
-Random events are not guaranteed to not overlap, however this can add additional randomness to the operation so is not a bad thing.
+~Random events are not guaranteed to not overlap, however this can add additional randomness to the operation so is not a bad thing.~
+Random events are handled slightly differently in that there should be more distinct events for sane numbers of divisions and lengths of events.
 
 ## input_selects and events
 
@@ -209,7 +214,7 @@ step_evening_name: Evening
 step_evening_start: sunset - 00:45:00
 
 step_night_name: Night
-step_evening_start: 11:00:00
+step_night_start: 11:00:00
 ```
 
 This will allow the office randomisations to occur any time between 45 minutes before sunset and 11pm.
