@@ -86,8 +86,8 @@ class OccuSim(hass.Hass):
                 if span == 0:
                     event = datetime.datetime.combine(self.local_date(), start)
                 else:
-                    #if span < 0:
-                        #span = self.after_midnight(span, step)
+                    if span < 0:
+                        span = self.after_midnight(span, step)
                     event = datetime.datetime.combine(self.local_date(), start) + datetime.timedelta(
                         seconds=random.randrange(span))
                 if not (re.match(r'[^\d:]', mask)): # If label or text present, already in UTC
