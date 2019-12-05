@@ -247,7 +247,7 @@ class OccuSim(hass.Hass):
             self.log("turned {} {}".format(type, entity))
 
     def log_notify(self, message):
-        if "log" in self.args:
+        if "log_msg" in self.args:
             self.log(message)
         if "notify" in self.args:
             self.notify(message)
