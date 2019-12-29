@@ -7,7 +7,7 @@ import random
 # App to simulate occupancy in an empty house
 #
 
-__version__ = "1.1.5"
+__version__ = "1.1.6"
 
 
 class OccuSim(hass.Hass):
@@ -250,6 +250,9 @@ class OccuSim(hass.Hass):
         if "log_msg" in self.args:
             self.log(message)
         if "notify" in self.args:
-            self.notify(message)
+            if "notify_protocol" in self.args:
+                self.notify(message, name=self.args['notify_service'])
+            else:
+                self.notify(message)
 
 
